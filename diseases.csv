@@ -1,0 +1,4 @@
+CropName,DiseaseName,Symptoms,Cause,ImageURL,Chemicals,Organics
+Tomato,Leaf Blight,"Yellow spots on leaves, wilting",Fungal infection,http://example.com/images/leaf_blight.jpg,"[{""name"":""Fungicide A"",""company"":""AgroChem"",""content"":""50%"",""dosage"":""2ml per L"",""approxCost"":150}]","[""Neem Oil"",""Garlic Extract""]"
+Tomato,Rust Disease,Orange pustules on leaves,Fungal pathogen,http://example.com/images/rust_disease.jpg,"[{""name"":""Fungicide B"",""company"":""FarmSafe"",""content"":""40%"",""dosage"":""1.5ml per L"",""approxCost"":120}]","[""Potassium Soap""]"
+Tomato,Root Rot,"Wilting, brown roots",Waterlogged soil,http://example.com/images/root_rot.jpg,"[{""name"":""Fungicide C"",""company"":""GreenGrow"",""content"":""60%"",""dosage"":""3ml per L"",""approxCost"":200}]","[""Compost Tea"",""Trichoderma Treatment""]"

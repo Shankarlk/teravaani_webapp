@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teravaani</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .navbar {
+      background-color: #0d6efd;
+    }
+
+    .navbar-brand {
+      color: white !important;
+      font-weight: 600;
+    }
+
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      background-color: #0d6efd;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Teravaani Info Admin</a>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- Table Tabs -->
+    <ul class="nav nav-tabs" id="crudTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#chatbot">ChatBot
+          Data</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#disease">Disease Info</button>
+      </li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#prep">Crop
+          Preparation</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#calendar">Calendar
+          Info</button></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+
+      <!-- ChatBotDataTable -->
+      <div class="tab-pane fade show active" id="chatbot">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>ChatBot Data</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" onclick="openChatbotModal(false)">Add New</button>
+              <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#chatbotUploadModal">
+                Upload CSV
+              </button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mb-3 align-items-center">
+            <input type="text" id="generalSearchInput" class="form-control" placeholder="Search Question or Answer..."
+              onkeyup="filterChatbotData()">
+
+            <select id="newlyAddedFilter" class="form-select w-auto" onchange="filterChatbotData()">
+              <option value="">All NewlyAdded</option>
+              <option value="FromUser">FromUser</option>
+              <option value="FromAdmin">FromAdmin</option>
+            </select>
+
+            <button class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+          </div>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered table-striped">
+              <thead class="table-primary">
+                <tr>
+                  <th>Question</th>
+                  <th>Answer</th>
+                  <th>UserId</th>
+                  <th>NewlyAdded</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="chatbotDataBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disease Info -->
+      <div class="tab-pane fade" id="disease">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>Disease Info Table</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm" onclick="opendieaseModal('disease')">Add New</button>
+              <button class="btn btn-success btn-sm" onclick="openDiseaseCsvModal()">Upload CSV</button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mb-3 align-items-center">
+            <input type="text" id="diseaseSearchInput" class="form-control" placeholder="Search Disease or Symptoms..."
+              onkeyup="filterDiseaseInfo()">
+
+            <select id="cropNameFilter" class="form-select w-auto" onchange="filterDiseaseInfo()">
+              <option value="">All Crops</option>
+            </select>
+
+            <button class="btn btn-outline-secondary" onclick="clearDiseaseFilters()">Clear Filters</button>
+          </div>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered table-striped">
+              <thead class="table-success">
+                <tr>
+                  <th>Crop Name</th>
+                  <th>Disease Name</th>
+                  <th>Symptoms</th>
+                  <th>Chemical Treatment</th>
+                  <th>Organic Treatment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="diseaseTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crop Preparation -->
+      <div class="tab-pane fade" id="prep">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>Crop Preparation Steps</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm" onclick="openModal('prep')">Add New</button>
+              <button class="btn btn-success btn-sm" onclick="openPrepCsvModal()">Upload CSV</button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mb-3 align-items-center">
+            <input type="text" id="prepSearchInput" class="form-control" placeholder="Search Title or Description..."
+              onkeyup="filterPrepSteps()">
+
+            <select id="prepCropFilter" class="form-select w-auto" onchange="filterPrepSteps()">
+              <option value="">All Crops</option>
+            </select>
+
+            <button class="btn btn-outline-secondary" onclick="clearPrepFilters()">Clear Filters</button>
+          </div>
+          <table class="table table-bordered table-striped">
+            <thead class="table-warning">
+              <tr>
+                <th>Crop Name</th>
+                <th>Step Order</th>
+                <th>Step Title</th>
+                <th>Step Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prepTable">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Calendar Info -->
+      <div class="tab-pane fade" id="calendar">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>Calendar Info Table</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm" onclick="openCalendarModal()">Add New</button>
+              <button class="btn btn-success btn-sm" onclick="openCalendarCsvModal()">Upload CSV</button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mb-3 align-items-center">
+            <input type="text" id="calendarSearchInput" class="form-control" placeholder="Search Day or Description..."
+              onkeyup="filterCalendarInfo()">
+
+            <select id="calendarCropFilter" class="form-select w-auto" onchange="filterCalendarInfo()">
+              <option value="">All Crops</option>
+            </select>
+
+            <button class="btn btn-outline-secondary" onclick="clearCalendarFilters()">Clear Filters</button>
+          </div>
+          <table class="table table-bordered table-striped">
+            <thead class="table-info">
+              <tr>
+                <th>Day</th>
+                <th>Description</th>
+                <th>Crop Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="calendarTable">
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- CSV Upload Modal -->
+  <div class="modal fade" id="uploadPrepCsvModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Preparation Steps CSV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <p>Download a sample Preparation Steps CSV template to ensure your file is correctly formatted.</p>
+            <a href="D:\WebApp\cropprepsteps.csv" download class="btn btn-outline-info btn-sm mb-3">
+              <i class="bi bi-download"></i> Download Preparation Steps CSV
+            </a>
+          <div class="mb-3">
+            <label class="form-label">Select CSV File</label>
+            <input type="file" id="prepCsvFileModal" accept=".csv" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success" onclick="uploadPrepCsvModal()">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="uploadCsvModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Calendar CSV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <p>Download a sample Calendar CSV template to ensure your file is correctly formatted.</p>
+            <a href="D:\WebApp\calendarinfo.csv" download class="btn btn-outline-info btn-sm mb-3">
+              <i class="bi bi-download"></i> Download Calendar CSV
+            </a>
+          <div class="mb-3">
+            <label class="form-label">Select CSV File</label>
+            <input type="file" id="calendarCsvFileModal" accept=".csv" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success" onclick="uploadCalendarCsvModal()">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Disease CSV Upload Modal -->
+  <div class="modal fade" id="uploadDiseaseCsvModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Disease CSV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <p>Download a sample Disease CSV template to ensure your file is correctly formatted.</p>
+            <a href="D:\WebApp\diseases.csv" download class="btn btn-outline-info btn-sm mb-3">
+              <i class="bi bi-download"></i> Download Disease CSV
+            </a>
+          <div class="mb-3">
+            <label class="form-label">Select CSV File</label>
+            <input type="file" id="diseaseCsvFileModal" accept=".csv" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success" onclick="uploadDiseaseCsvModal()">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="chatbotModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 id="chatbotModalTitle" class="modal-title">Add Chatbot Q&A</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="chatbotForm">
+            <input type="hidden" id="ChatbotId">
+            <div class="mb-3">
+              <label class="form-label">Question</label>
+              <textarea id="Question" class="form-control" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Answer</label>
+              <textarea id="Answer" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">User ID</label>
+              <input type="text" id="UserId" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Newly Added</label>
+              <input type="text" id="NewlyAdded" class="form-control" placeholder="FromAdmin">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-success" onclick="saveChatbot()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="chatbotUploadModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Chatbot Q&A CSV</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Download a sample Chatbot CSV template to ensure your file is correctly formatted.</p>
+          <a href="D:\WebApp\chabotqa.csv" download class="btn btn-outline-info btn-sm mb-3">
+            <i class="bi bi-download"></i> Download Chatbot CSV
+          </a>
+          <input type="file" id="chatbotCsvFile" accept=".csv" class="form-control mb-3">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" onclick="uploadChatbotCSV()">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal fade" id="addEditModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modalTitle">Add New Record</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="crudForm">
+            <div class="row g-3" id="dynamicFields"></div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" onclick="saveData()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+
+    // Logout function (optional)
+    function logout() {
+      localStorage.removeItem("adminLoggedIn");
+      window.location.href = "login.html";
+    }
+    let currentTable = '';
+    let editTargetRow = null;
+    let editStepId = null;
+
+    const tableFields = {
+      chatbot: ['Question', 'Answer', 'UserId', 'NewlyAdded'],
+      disease: ['Disease Name', 'Symptoms', 'Chemical Treatment', 'Organic Treatment'],
+      prep: ['Crop Name', 'Step Order', 'Step Title', 'Step Description'],
+      calendar: ['Day', 'Description', 'Crop Name']
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPrepSteps();
+      loadCalendarInfo();
+      loadDiseaseInfo();
+      loadChatbotData();
+    });
+    // Global variable to store the original, unfiltered data
+    let allDiseaseData = [];
+
+    // 🔹 Function to populate the Crop Name dropdown
+    function populateCropFilter(diseases) {
+      const filterSelect = document.getElementById('cropNameFilter');
+      // Clear existing options, keeping "All Crops"
+      filterSelect.innerHTML = '<option value="">All Crops</option>';
+
+      // Get unique crop names
+      const uniqueCrops = [...new Set(diseases.map(d => d.CropName).filter(name => name))].sort();
+
+      uniqueCrops.forEach(crop => {
+        const option = document.createElement('option');
+        option.value = crop;
+        option.textContent = crop;
+        filterSelect.appendChild(option);
+      });
+    }
+
+    // 🔹 Function to render the data to the table
+    function renderDiseaseData(diseases) {
+      const tbody = document.getElementById('diseaseTable');
+      tbody.innerHTML = '';
+
+      if (diseases.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No matching data found</td></tr>';
+        return;
+      }
+
+      diseases.forEach(d => {
+        // Join chemical and organic lists into readable strings
+        const chemText = (d.Chemicals && d.Chemicals.length > 0)
+          ? d.Chemicals.map(c => `${c.ProductName || '-'} (${c.Company || ''})`).join('<br>')
+          : '-';
+
+        const orgText = (d.Organics && d.Organics.length > 0)
+          ? d.Organics.map(o => o.Treatment).join('<br>')
+          : '-';
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', d.DiseaseID);
+
+        tr.innerHTML = `
+            <td>${d.CropName || '-'}</td>
+            <td>${d.DiseaseName || '-'}</td>
+            <td>${d.Symptoms || '-'}</td>
+            <td>${chemText}</td>
+            <td>${orgText}</td>
+            <td>
+                <button class="btn btn-sm btn-warning me-1" onclick="editDisease(this)">Edit</button>
+                <button class="btn btn-sm btn-danger mt-1" onclick="deleteDisease(${d.DiseaseID})">Delete</button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+
+    // 🔹 Original function updated to store data and populate filters
+    async function loadDiseaseInfo() {
+      const tbody = document.getElementById('diseaseTable');
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+      try {
+        const res = await fetch('http://localhost:3000/api/diseases');
+        const diseases = await res.json();
+
+        // Store the original data
+        allDiseaseData = diseases;
+
+        // Populate the Crop Name filter
+        populateCropFilter(allDiseaseData);
+
+        // Render the initial data
+        renderDiseaseData(allDiseaseData);
+
+      } catch (err) {
+        console.error('Error loading diseases:', err);
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load data</td></tr>';
+      }
+    }
+
+    // 🔹 New function to filter the disease data
+    function filterDiseaseInfo() {
+      const searchInput = document.getElementById('diseaseSearchInput').value.toLowerCase();
+      const cropFilter = document.getElementById('cropNameFilter').value; // '' for All
+
+      let filteredData = allDiseaseData.filter(item => {
+        let matchesSearch = true;
+        let matchesCrop = true;
+
+        // 1. General Search Filter (Disease Name, Symptoms)
+        if (searchInput) {
+          const diseaseName = item.DiseaseName ? item.DiseaseName.toLowerCase() : '';
+          const symptoms = item.Symptoms ? item.Symptoms.toLowerCase() : '';
+          matchesSearch = diseaseName.includes(searchInput) || symptoms.includes(searchInput);
+        }
+
+        // 2. Crop Name Filter
+        if (cropFilter !== '') {
+          matchesCrop = (item.CropName || '') === cropFilter;
+        }
+
+        // Must match ALL active filters
+        return matchesSearch && matchesCrop;
+      });
+
+      renderDiseaseData(filteredData);
+    }
+
+    // 🔹 New function to clear filters
+    function clearDiseaseFilters() {
+      document.getElementById('diseaseSearchInput').value = '';
+      document.getElementById('cropNameFilter').value = '';
+      filterDiseaseInfo(); // Re-run filter function, which will now display all data
+    }
+    function opendieaseModal(tableName) {
+      if (tableName !== 'disease') return;
+      currentTable = 'disease';
+      editTargetRow = null;
+      editDiseaseId = null;
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = `
+      <div class="col-md-6">
+        <label class="form-label">Crop Name</label>
+        <input type="text" class="form-control" placeholder="Enter Crop Name">
+      </div>
+    <div class="col-md-6">
+      <label class="form-label">Disease Name</label>
+      <input type="text" class="form-control" id="diseaseName" placeholder="Enter Disease Name">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Symptoms</label>
+      <input type="text" class="form-control" id="diseaseSymptoms" placeholder="Enter Symptoms">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Chemical Treatments (JSON)</label>
+      <textarea class="form-control" id="diseaseChemicals" placeholder='[{"name":"Indofil M-45","company":"Indofil","content":"Mancozeb 75% WP","dosage":"2.5g/litre","approxCost":"₹480/kg"}]'></textarea>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Organic Treatments (JSON Array)</label>
+      <textarea class="form-control" id="diseaseOrganics" placeholder='["Neem oil foliar spray (5ml/litre)"]'></textarea>
+    </div>`;
+      document.getElementById('modalTitle').innerText = 'Add New Disease';
+      new bootstrap.Modal(document.getElementById('addEditModal')).show();
+    }
+    // Edit Disease
+    async function editDisease(btn) {
+      currentTable = 'disease';
+      editTargetRow = btn.closest('tr');
+      editDiseaseId = editTargetRow.getAttribute('data-id');
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/disease/${editDiseaseId}`);
+        const d = await res.json();
+        const container = document.getElementById('dynamicFields');
+        container.innerHTML = `
+        <div class="col-md-6">
+          <label class="form-label">Crop Name</label>
+          <input type="text" class="form-control" id="diseaseCropName" value="${d.CropName}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Disease Name</label>
+        <input type="text" class="form-control" id="diseaseName" value="${d.DiseaseName}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Symptoms</label>
+        <input type="text" class="form-control" id="diseaseSymptoms" value="${d.Symptoms || ''}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Chemical Treatments (JSON)</label>
+        <textarea class="form-control" id="diseaseChemicals">${JSON.stringify(d.Chemicals || [])}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Organic Treatments (JSON Array)</label>
+        <textarea class="form-control" id="diseaseOrganics">${JSON.stringify(d.Organics || [])}</textarea>
+      </div>`;
+        document.getElementById('modalTitle').innerText = 'Edit Disease';
+        new bootstrap.Modal(document.getElementById('addEditModal')).show();
+      } catch (err) {
+        console.error('Error fetching disease details:', err);
+        alert('Failed to load disease details');
+      }
+    }
+
+    async function deleteDisease(id) {
+      if (!confirm('Are you sure you want to delete this disease?')) return;
+      const res = await fetch(`http://localhost:3000/api/disease/${id}`, { method: 'DELETE' });
+      const result = await res.json();
+      alert(result.message || result.error);
+      loadDiseaseInfo();
+    }
+    function openDiseaseCsvModal() {
+      new bootstrap.Modal(document.getElementById('uploadDiseaseCsvModal')).show();
+    }
+    async function uploadDiseaseCsvModal() {
+      const fileInput = document.getElementById('diseaseCsvFileModal');
+      if (!fileInput.files.length) {
+        alert('Please select a CSV file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const res = await fetch('http://localhost:3000/api/diseaseupload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert(result.message || 'CSV uploaded successfully');
+          fileInput.value = '';
+          bootstrap.Modal.getInstance(document.getElementById('uploadDiseaseCsvModal')).hide();
+          loadDiseaseInfo(); // reload table
+        } else {
+          alert(result.error || 'Failed to upload CSV');
+        }
+      } catch (err) {
+        console.error('Disease CSV upload error:', err);
+        alert('Error uploading CSV');
+      }
+    }
+    async function saveDisease() {
+      const inputs = document.querySelectorAll('#dynamicFields input, #dynamicFields textarea');
+      const [CropNameInput, DiseaseNameInput, SymptomsInput, ChemicalsInput, OrganicsInput] = Array.from(inputs).map(i => i.value.trim());
+
+      if (!CropNameInput || !DiseaseNameInput) {
+        alert('Please enter Crop Name and Disease Name');
+        return;
+      }
+
+      try {
+        let Chemicals = [];
+        let Organics = [];
+        try { Chemicals = JSON.parse(ChemicalsInput || '[]'); } catch (e) { alert('Invalid Chemicals JSON'); return; }
+        try { Organics = JSON.parse(OrganicsInput || '[]'); } catch (e) { alert('Invalid Organics JSON'); return; }
+
+        // 3️⃣ Prepare payload
+        const payload = {
+          CropName: CropNameInput,
+          DiseaseName: DiseaseNameInput,
+          Symptoms: SymptomsInput,
+          Cause: "-",
+          Chemicals,
+          Organics
+        };
+
+        // 4️⃣ Add StepID if editing
+        if (editStepId) payload.DiseaseID = editStepId;
+
+        // 5️⃣ Send to API
+        const res = await fetch('http://localhost:3000/api/disease', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        alert(result.message || result.error);
+        bootstrap.Modal.getInstance(document.getElementById('addEditModal')).hide();
+        loadDiseaseInfo();
+      } catch (err) {
+        console.error('Error saving disease:', err);
+        alert('Failed to save disease');
+      }
+    }
+
+
+    // Global variable to store the original, unfiltered data
+    let allCalendarData = [];
+
+    // 🔹 Function to populate the Crop Name dropdown
+    function populateCalendarCropFilter(records) {
+      const filterSelect = document.getElementById('calendarCropFilter');
+      // Clear existing options, keeping "All Crops"
+      filterSelect.innerHTML = '<option value="">All Crops</option>';
+
+      // Get unique crop names
+      const uniqueCrops = [...new Set(records.map(r => r.CropName).filter(name => name))].sort();
+
+      uniqueCrops.forEach(crop => {
+        const option = document.createElement('option');
+        option.value = crop;
+        option.textContent = crop;
+        filterSelect.appendChild(option);
+      });
+    }
+
+    // 🔹 Function to render the data to the table
+    function renderCalendarRecords(recordsToRender) {
+      const tbody = document.getElementById('calendarTable');
+      tbody.innerHTML = '';
+
+      if (recordsToRender.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No matching data found</td></tr>';
+        return;
+      }
+
+      recordsToRender.forEach(rec => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', rec.CalendarID);
+        tr.innerHTML = `
+        <td>${rec.DayNumber }</td>
+        <td>${rec.Description || '-'}</td>
+        <td>${rec.CropName || '-'}</td>
+        <td>
+          <button class="btn btn-sm btn-warning" onclick="editCalendar(this)">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCalendar(${rec.CalendarID})">Delete</button>
+        </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 🔹 Original load function updated to store data and populate filters
+    async function loadCalendarInfo() {
+      const tbody = document.getElementById('calendarTable');
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
+
+      try {
+        const res = await fetch('http://localhost:3000/api/calendar');
+        const records = await res.json();
+
+        // Store the original data
+        allCalendarData = records;
+
+        // Populate the Crop Name filter
+        populateCalendarCropFilter(allCalendarData);
+
+        // Render the initial data
+        renderCalendarRecords(allCalendarData);
+
+      } catch (err) {
+        console.error('Error loading calendar info:', err);
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load data</td></tr>';
+      }
+    }
+
+    // 🔹 New function to filter the calendar data
+    function filterCalendarInfo() {
+      const searchInput = document.getElementById('calendarSearchInput').value.toLowerCase();
+      const cropFilter = document.getElementById('calendarCropFilter').value; // '' for All
+
+      let filteredData = allCalendarData.filter(item => {
+        let matchesSearch = true;
+        let matchesCrop = true;
+
+        // 1. General Search Filter (Day or Description)
+        if (searchInput) {
+          const day = String(item.DayNumber || '').toLowerCase();
+          const description = item.Description ? item.Description.toLowerCase() : '';
+          matchesSearch = day.includes(searchInput) || description.includes(searchInput);
+        }
+
+        // 2. Crop Name Filter
+        if (cropFilter !== '') {
+          matchesCrop = (item.CropName || '') === cropFilter;
+        }
+
+        // Must match ALL active filters
+        return matchesSearch && matchesCrop;
+      });
+
+      renderCalendarRecords(filteredData);
+    }
+
+    // 🔹 New function to clear filters
+    function clearCalendarFilters() {
+      document.getElementById('calendarSearchInput').value = '';
+      document.getElementById('calendarCropFilter').value = '';
+      filterCalendarInfo(); // Re-run filter function, which will now display all data
+    }
+    function openCalendarModal() {
+      currentTable = 'calendar';
+      editTargetRow = null;
+      editCalendarId = null;
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = `
+    <div class="col-md-4">
+      <label class="form-label">Day Number</label>
+      <input type="number" class="form-control" placeholder="Enter day">
+    </div>
+    <div class="col-md-8">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-control" placeholder="Enter description">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Crop Name</label>
+      <input type="text" class="form-control" placeholder="Enter crop name">
+    </div>`;
+      document.getElementById('modalTitle').innerText = 'Add Calendar Record';
+      new bootstrap.Modal(document.getElementById('addEditModal')).show();
+    }
+
+    function editCalendar(btn) {
+      currentTable = 'calendar';
+      editTargetRow = btn.closest('tr');
+      editCalendarId = editTargetRow.getAttribute('data-id');
+      const cells = editTargetRow.querySelectorAll('td');
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = `
+    <div class="col-md-4">
+      <label class="form-label">Day Number</label>
+      <input type="number" class="form-control" value="${cells[0].innerText}">
+    </div>
+    <div class="col-md-8">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-control" value="${cells[1].innerText}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Crop Name</label>
+      <input type="text" class="form-control" value="${cells[2].innerText}">
+    </div>`;
+      document.getElementById('modalTitle').innerText = 'Edit Calendar Record';
+      new bootstrap.Modal(document.getElementById('addEditModal')).show();
+    }
+    async function saveCalendar() {
+      const inputs = document.querySelectorAll('#dynamicFields input');
+      const [DayNumber, Description, CropName] = Array.from(inputs).map(i => i.value.trim());
+
+      if (!DayNumber || !Description || !CropName) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      const payload = { CalendarID: editCalendarId, CropName, DayNumber, Description };
+      const res = await fetch('http://localhost:3000/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      alert(result.message || result.error);
+      bootstrap.Modal.getInstance(document.getElementById('addEditModal')).hide();
+      loadCalendarInfo();
+    }
+    function openCalendarCsvModal() {
+      new bootstrap.Modal(document.getElementById('uploadCsvModal')).show();
+    }
+    async function uploadCalendarCsvModal() {
+      const fileInput = document.getElementById('calendarCsvFileModal');
+      if (!fileInput.files.length) {
+        alert('Please select a CSV file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const res = await fetch('http://localhost:3000/api/calendarupload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert(result.message || 'CSV uploaded successfully');
+          fileInput.value = '';
+          bootstrap.Modal.getInstance(document.getElementById('uploadCsvModal')).hide();
+          loadCalendarInfo();
+        } else {
+          alert(result.error || 'Failed to upload CSV');
+        }
+      } catch (err) {
+        console.error('CSV upload error:', err);
+        alert('Error uploading CSV');
+      }
+    }
+    async function deleteCalendar(id) {
+      if (!confirm('Are you sure you want to delete this record?')) return;
+      const res = await fetch(`http://localhost:3000/api/calendar/${id}`, { method: 'DELETE' });
+      const result = await res.json();
+      alert(result.message || result.error);
+      loadCalendarInfo();
+    }
+
+    function openPrepCsvModal() {
+      new bootstrap.Modal(document.getElementById('uploadPrepCsvModal')).show();
+    }
+    async function uploadPrepCsvModal() {
+      const fileInput = document.getElementById('prepCsvFileModal');
+      if (!fileInput.files.length) {
+        alert('Please select a CSV file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const res = await fetch('http://localhost:3000/api/preparationupload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert(result.message || 'CSV uploaded successfully');
+          fileInput.value = '';
+          bootstrap.Modal.getInstance(document.getElementById('uploadPrepCsvModal')).hide();
+          loadPrepSteps(); // reload table
+        } else {
+          alert(result.error || 'Failed to upload CSV');
+        }
+      } catch (err) {
+        console.error('CSV upload error:', err);
+        alert('Error uploading CSV');
+      }
+    }
+    // Global variable to store the original, unfiltered data
+    let allPrepStepsData = [];
+
+    // 🔹 Function to populate the Crop Name dropdown
+    function populatePrepCropFilter(steps) {
+      const filterSelect = document.getElementById('prepCropFilter');
+      // Clear existing options, keeping "All Crops"
+      filterSelect.innerHTML = '<option value="">All Crops</option>';
+
+      // Get unique crop names
+      const uniqueCrops = [...new Set(steps.map(s => s.CropName).filter(name => name))].sort();
+
+      uniqueCrops.forEach(crop => {
+        const option = document.createElement('option');
+        option.value = crop;
+        option.textContent = crop;
+        filterSelect.appendChild(option);
+      });
+    }
+
+    // 🔹 Function to render the data to the table
+    function renderPrepSteps(stepsToRender) {
+      const tbody = document.getElementById('prepTable');
+      tbody.innerHTML = '';
+
+      if (stepsToRender.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No matching data found</td></tr>';
+        return;
+      }
+
+      stepsToRender.forEach(step => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', step.StepID);
+        tr.innerHTML = `
+        <td>${step.CropName || '-'}</td>
+        <td>${step.StepOrder || '-'}</td>
+        <td>${step.StepTitle || '-'}</td>
+        <td>${step.StepDescription || '-'}</td>
+        <td>
+          <button class="btn btn-sm btn-warning" onclick="editStep('prep', this)">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteStep(${step.StepID})">Delete</button>
+        </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 🔹 Original load function updated to store data and populate filters
+    async function loadPrepSteps() {
+      const tbody = document.getElementById('prepTable');
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
+
+      try {
+        const res = await fetch('http://localhost:3000/api/preparation');
+        const steps = await res.json();
+
+        // Store the original data
+        allPrepStepsData = steps;
+
+        // Populate the Crop Name filter
+        populatePrepCropFilter(allPrepStepsData);
+
+        // Render the initial data
+        renderPrepSteps(allPrepStepsData);
+
+      } catch (err) {
+        console.error('Error loading preparation steps:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load data</td></tr>';
+      }
+    }
+
+    // 🔹 New function to filter the preparation steps
+    function filterPrepSteps() {
+      const searchInput = document.getElementById('prepSearchInput').value.toLowerCase();
+      const cropFilter = document.getElementById('prepCropFilter').value; // '' for All
+
+      let filteredData = allPrepStepsData.filter(item => {
+        let matchesSearch = true;
+        let matchesCrop = true;
+
+        // 1. General Search Filter (Step Title or Description)
+        if (searchInput) {
+          const title = item.StepTitle ? item.StepTitle.toLowerCase() : '';
+          const description = item.StepDescription ? item.StepDescription.toLowerCase() : '';
+          matchesSearch = title.includes(searchInput) || description.includes(searchInput);
+        }
+
+        // 2. Crop Name Filter
+        if (cropFilter !== '') {
+          matchesCrop = (item.CropName || '') === cropFilter;
+        }
+
+        // Must match ALL active filters
+        return matchesSearch && matchesCrop;
+      });
+
+      renderPrepSteps(filteredData);
+    }
+
+    // 🔹 New function to clear filters
+    function clearPrepFilters() {
+      document.getElementById('prepSearchInput').value = '';
+      document.getElementById('prepCropFilter').value = '';
+      filterPrepSteps(); // Re-run filter function, which will now display all data
+    }
+    function openModal(tableName) {
+      currentTable = tableName;
+      editTargetRow = null;
+      editStepId = null;
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = tableFields[tableName].map(f =>
+        `<div class="col-md-6">
+      <label class="form-label">${f}</label>
+      <input type="text" class="form-control" placeholder="Enter ${f}">
+    </div>`
+      ).join('');
+      document.getElementById('modalTitle').innerText = `Add New ${tableName}`;
+      new bootstrap.Modal(document.getElementById('addEditModal')).show();
+    }
+    function editStep(table, btn) {
+      currentTable = table;
+      editTargetRow = btn.closest('tr');
+      editStepId = editTargetRow.getAttribute('data-id');
+      const cells = editTargetRow.querySelectorAll('td');
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = tableFields[table].map((f, i) =>
+        `<div class="col-md-6">
+      <label class="form-label">${f}</label>
+      <input type="text" class="form-control" value="${cells[i].innerText}" placeholder="Enter ${f}">
+    </div>`
+      ).join('');
+      document.getElementById('modalTitle').innerText = `Edit ${table}`;
+      new bootstrap.Modal(document.getElementById('addEditModal')).show();
+    }
+
+    async function saveData() {
+      if (currentTable === 'calendar') return await saveCalendar();
+      if (currentTable === 'disease') return await saveDisease();
+      if (currentTable !== 'prep') {
+        alert('Only Crop Preparation CRUD is connected to the backend.');
+        return;
+      }
+
+      const inputs = document.querySelectorAll('#dynamicFields input');
+      const [CropName, StepOrder, StepTitle, StepDescription] = Array.from(inputs).map(i => i.value.trim());
+
+      if (!CropName || !StepOrder || !StepTitle || !StepDescription) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      const payload = { StepID: editStepId, CropName, StepOrder, StepTitle, StepDescription };
+      const res = await fetch('http://localhost:3000/api/addcroppreparation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      alert(result.message || result.error);
+      bootstrap.Modal.getInstance(document.getElementById('addEditModal')).hide();
+      loadPrepSteps();
+    }
+
+    async function deleteStep(id) {
+      if (!confirm('Are you sure you want to delete this step?')) return;
+      const res = await fetch(`http://localhost:3000/api/preparation/${id}`, { method: 'DELETE' });
+      const result = await res.json();
+      alert(result.message || result.error);
+      loadPrepSteps();
+    }
+
+    // 🔹 Load all chatbot Q&A records
+    let allChatbotData = [];
+    async function loadChatbotData() {
+      try {
+        const res = await fetch('http://localhost:3000/api/chatbotqa');
+        const data = await res.json();
+        allChatbotData = data;
+        renderChatbotData(allChatbotData);
+
+      } catch (err) {
+        console.error('Error loading chatbot data:', err);
+      }
+    }
+    function renderChatbotData(dataToRender) {
+      const tbody = document.getElementById('chatbotDataBody');
+      tbody.innerHTML = '';
+
+      if (dataToRender.length === 0) {
+        const noDataRow = `<tr><td colspan="5" class="text-center">No matching data found.</td></tr>`;
+        tbody.insertAdjacentHTML('beforeend', noDataRow);
+        return;
+      }
+
+      dataToRender.forEach((item, index) => {
+        // Convert boolean or truthy/falsy values for NewlyAdded to 'Yes'/'No' for display
+
+        const row = `
+      <tr>
+        <td>${item.Question || ''}</td>
+        <td>${item.Answer || ''}</td>
+        <td>${item.UserId || '-'}</td>
+        <td>${item.NewlyAdded}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-1" onclick="editChatbot(${item.ChatbotId})">Edit</button>
+          <button class="btn btn-sm btn-danger mt-1" onclick="deleteChatbot(${item.ChatbotId})">Delete</button>
+        </td>
+      </tr>
+    `;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    // 🔹 Filters the chatbot data based on input fields
+    function filterChatbotData() {
+      const searchInput = document.getElementById('generalSearchInput').value.toLowerCase();
+      const newlyAddedFilter = document.getElementById('newlyAddedFilter').value; // 'true', 'false', or ''
+
+      let filteredData = allChatbotData.filter(item => {
+        let matchesSearch = true;
+        let matchesNewlyAdded = true;
+
+        // 1. General Search Filter (Question or Answer)
+        if (searchInput) {
+          const question = item.Question ? item.Question.toLowerCase() : '';
+          const answer = item.Answer ? item.Answer.toLowerCase() : '';
+          matchesSearch = question.includes(searchInput) || answer.includes(searchInput);
+        }
+
+        // 2. NewlyAdded Filter
+        if (newlyAddedFilter !== '') {
+          // Ensure the item's value is compared against the selected filter value
+          // The item.NewlyAdded might be a boolean or a string depending on your API
+          const itemNewlyAdded = String(item.NewlyAdded).toLowerCase();
+          matchesNewlyAdded = itemNewlyAdded === newlyAddedFilter.toLowerCase();
+        }
+
+        // Must match ALL active filters
+        return matchesSearch && matchesNewlyAdded;
+      });
+
+      renderChatbotData(filteredData);
+    }
+
+    // 🔹 Clears the filter fields and re-renders all data
+    function clearFilters() {
+      document.getElementById('generalSearchInput').value = '';
+      document.getElementById('newlyAddedFilter').value = '';
+      renderChatbotData(allChatbotData);
+    }
+
+
+    // 🔹 Open Add/Edit Modal
+    function openChatbotModal(editMode = false) {
+      if (!editMode) {
+        // Only reset when adding new record
+        document.getElementById('chatbotForm').reset();
+        document.getElementById('ChatbotId').value = '';
+      }
+      document.getElementById('chatbotModalTitle').innerText = editMode ? 'Edit Chatbot Q&A' : 'Add Chatbot Q&A';
+      new bootstrap.Modal(document.getElementById('chatbotModal')).show();
+    }
+
+    // 🔹 Edit Existing Record
+    async function editChatbot(id) {
+      try {
+        const res = await fetch(`http://localhost:3000/api/chatbotqa/${id}`);
+        const data = await res.json();
+
+        document.getElementById('ChatbotId').value = data.ChatbotId;
+        document.getElementById('Question').value = data.Question;
+        document.getElementById('Answer').value = data.Answer;
+        document.getElementById('UserId').value = data.UserId || '';
+        document.getElementById('NewlyAdded').value = data.NewlyAdded || '';
+
+        openChatbotModal(true);
+      } catch (err) {
+        console.error('Error editing chatbot:', err);
+      }
+    }
+
+    // 🔹 Save Add/Edit Record
+    async function saveChatbot() {
+      const ChatbotId = document.getElementById('ChatbotId').value;
+      const Question = document.getElementById('Question').value.trim();
+      const Answer = document.getElementById('Answer').value.trim();
+      const UserId = document.getElementById('UserId').value.trim();
+      const NewlyAdded = document.getElementById('NewlyAdded').value.trim();
+
+      if (!Question || !Answer) {
+        alert('Please enter both Question and Answer');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/chatbotqa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ChatbotId, Question, Answer, UserId, NewlyAdded })
+        });
+
+        const result = await res.json();
+        alert(result.message || 'Saved successfully');
+        bootstrap.Modal.getInstance(document.getElementById('chatbotModal')).hide();
+        loadChatbotData();
+      } catch (err) {
+        console.error('Error saving chatbot data:', err);
+      }
+    }
+
+    // 🔹 Delete Record
+    async function deleteChatbot(id) {
+      if (!confirm('Are you sure you want to delete this record?')) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/chatbotqa/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        alert(result.message || 'Deleted successfully');
+        loadChatbotData();
+      } catch (err) {
+        console.error('Error deleting chatbot:', err);
+      }
+    }
+
+    // 🔹 Upload CSV
+    async function uploadChatbotCSV() {
+      const fileInput = document.getElementById('chatbotCsvFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a CSV file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('http://localhost:3000/api/chatbotqaupload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await res.json();
+        alert(result.message || 'CSV upload completed.');
+        bootstrap.Modal.getInstance(document.getElementById('chatbotUploadModal')).hide();
+        loadChatbotData();
+      } catch (err) {
+        console.error('Error uploading chatbot CSV:', err);
+      }
+    }
+
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
